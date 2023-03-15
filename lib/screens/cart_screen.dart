@@ -43,7 +43,7 @@ class CartScreen extends StatelessWidget {
                           cart.items.values.toList(), cart.totalAmount);
                       cart.clear();
                     },
-                    child: Text(
+                    child: const Text(
                       'ORDER NOW',
                       style: TextStyle(color: Colors.blue),
                     ),
@@ -52,7 +52,7 @@ class CartScreen extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           Expanded(

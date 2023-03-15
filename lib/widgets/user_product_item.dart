@@ -2,15 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../screens/edit_product_screen.dart';
-import '../providers/product.dart';
 import '../providers/products_provider.dart';
-
 
 class UserProductItem extends StatelessWidget {
   final String id;
   final String title;
   final String imageUrl;
-  UserProductItem(this.title, this.imageUrl, this.id);
+  const UserProductItem(this.title, this.imageUrl, this.id, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +17,7 @@ class UserProductItem extends StatelessWidget {
         backgroundImage: NetworkImage(imageUrl),
       ),
       title: Text(title),
-      trailing: Container(
+      trailing: SizedBox(
         width: 100,
         child: Row(
           children: [
@@ -34,8 +32,17 @@ class UserProductItem extends StatelessWidget {
               color: Theme.of(context).colorScheme.secondary,
             ),
             IconButton(
-              onPressed: () {
-                Provider.of<Products>(context, listen: false).deleteProduct(id);
+              onPressed: () async {
+                try {
+                  await Provider.of<Products>(context, listen: false)
+                      .deleteProduct(id);
+                } catch (error) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Deleting failed!'),
+                    ),
+                  );
+                }
               },
               icon: const Icon(Icons.delete),
               color: Theme.of(context).colorScheme.error,

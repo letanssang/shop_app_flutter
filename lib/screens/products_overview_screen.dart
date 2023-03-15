@@ -3,11 +3,12 @@ import 'package:provider/provider.dart';
 import '../providers/cart.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/products_grid.dart';
+import '../providers/products_provider.dart';
 import 'cart_screen.dart';
 
 enum FilterOptions {
-  Favorites,
-  All,
+  favorites,
+  all,
 }
 
 class ProductsOverviewScreen extends StatefulWidget {
@@ -17,6 +18,33 @@ class ProductsOverviewScreen extends StatefulWidget {
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   var _showOnlyFavorites = false;
+  var isInit = false;
+  var isLoading = false;
+  @override
+  void initState() {
+    isInit = true;
+    // TODO: implement initState
+    super.initState();
+    // Future.delayed(Duration.zero).then((_) {
+    //   Provider.of<Products>(context, listen: false).fetchAndSetProducts();
+    // });
+  }
+
+  @override
+  void didChangeDependencies() {
+    if (isInit) {
+      setState(() {
+        isLoading = true;
+      });
+      Provider.of<Products>(context, listen: false)
+          .fetchAndSetProducts()
+          .then((_) => setState(() {
+                isLoading = false;
+              }));
+    }
+    isInit = false;
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,8 +54,8 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
         actions: [
           Consumer<Cart>(
             builder: (_, cart, ch) => Badge(
-              child: ch!,
               label: Text(cart.itemCount.toString()),
+              child: ch!,
             ),
             child: IconButton(
               onPressed: () {
@@ -39,7 +67,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
           PopupMenuButton(
             onSelected: (FilterOptions selectedValue) {
               setState(() {
-                if (selectedValue == FilterOptions.Favorites) {
+                if (selectedValue == FilterOptions.favorites) {
                   // products.showFavoritesOnly();
                   _showOnlyFavorites = true;
                 } else {
@@ -50,17 +78,20 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
             },
             itemBuilder: (ctx) => [
               const PopupMenuItem(
-                  child: Text('Only Favorites'),
-                  value: FilterOptions.Favorites),
+                  value: FilterOptions.favorites,
+                  child: Text('Only Favorites')),
               const PopupMenuItem(
-                  child: Text('Show All'), value: FilterOptions.All),
+                  value: FilterOptions.all, child: Text('Show All')),
             ],
             icon: const Icon(Icons.more_vert),
           ),
-
         ],
       ),
-      body: ProductsGrid(_showOnlyFavorites),
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : ProductsGrid(_showOnlyFavorites),
       drawer: const AppDrawer(),
     );
   }

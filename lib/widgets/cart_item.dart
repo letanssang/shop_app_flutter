@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/cart.dart';
+
 class CartItem extends StatelessWidget {
   final String id;
   final String productId;
@@ -22,14 +23,14 @@ class CartItem extends StatelessWidget {
       key: ValueKey(id),
       background: Container(
         color: Theme.of(context).colorScheme.error,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 4),
         child: const Icon(
           Icons.delete,
           color: Colors.white,
           size: 40,
         ),
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
-        margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 4),
       ),
       direction: DismissDirection.endToStart,
       confirmDismiss: (direction) {
@@ -37,7 +38,8 @@ class CartItem extends StatelessWidget {
           context: context,
           builder: (ctx) => AlertDialog(
             title: const Text('Are you sure?'),
-            content: const Text('Do you want to remove the item from the cart?'),
+            content:
+                const Text('Do you want to remove the item from the cart?'),
             actions: [
               TextButton(
                 onPressed: () {
@@ -56,7 +58,7 @@ class CartItem extends StatelessWidget {
         );
       },
       onDismissed: (direction) {
-         Provider.of<Cart>(context, listen: false).removeItem(productId);
+        Provider.of<Cart>(context, listen: false).removeItem(productId);
       },
       child: Card(
         margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 4),
@@ -67,7 +69,7 @@ class CartItem extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(5),
                 child: FittedBox(
-                  child: Text('\$${price}'),
+                  child: Text('\$$price'),
                 ),
               ),
             ),
