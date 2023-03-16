@@ -30,9 +30,9 @@ class MyApp extends StatelessWidget {
                 .copyWith(secondary: Colors.deepOrange),
             fontFamily: 'Lato',
           ),
-          home: ProductsOverviewScreen(),
+          home: const ProductsOverviewScreen(),
           routes: {
-            ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
+            ProductDetailScreen.routeName: (ctx) => const ProductDetailScreen(),
             CartScreen.routeName: (ctx) => const CartScreen(),
             OrdersScreen.routeName: (ctx) => const OrdersScreen(),
             UserProductsScreen.routeName: (ctx) => const UserProductsScreen(),

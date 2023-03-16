@@ -27,11 +27,12 @@ class Orders with ChangeNotifier {
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
     final url = Uri.parse(
         'https://shop-app-flutter-46e4b-default-rtdb.asia-southeast1.firebasedatabase.app/orders.json');
+    final timestamp = DateTime.now();
     try {
       final response = await http.post(url,
           body: json.encode({
             'amount': total,
-            'dateTime': DateTime.now().toIso8601String(),
+            'dateTime': timestamp.toIso8601String(),
             'products': cartProducts
                 .map((cp) => {
                       'id': cp.id,
@@ -47,13 +48,14 @@ class Orders with ChangeNotifier {
             id: json.decode(response.body)['name'],
             amount: total,
             products: cartProducts,
-            dateTime: DateTime.now(),
+            dateTime: timestamp,
           ));
       notifyListeners();
     } catch (error) {
       rethrow;
     }
   }
+
   Future<void> fetchAndSetOrders() async {
     final url = Uri.parse(
         'https://shop-app-flutter-46e4b-default-rtdb.asia-southeast1.firebasedatabase.app/orders.json');
@@ -78,6 +80,9 @@ class Orders with ChangeNotifier {
       });
       _orders = loadedOrders.reversed.toList();
       notifyListeners();
+      if (response.statusCode >= 400) {
+        throw Exception();
+      }
     } catch (error) {
       rethrow;
     }

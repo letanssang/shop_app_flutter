@@ -37,13 +37,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
   @override
   void initState() {
     _imageUrlFocusNode.addListener(_updateImageUrl);
-    // TODO: implement initState
     super.initState();
   }
 
   @override
   void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
     if (_isInit) {
       final productId = ModalRoute.of(context)!.settings.arguments as String?;
       if (productId != null) {

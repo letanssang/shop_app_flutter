@@ -12,6 +12,8 @@ enum FilterOptions {
 }
 
 class ProductsOverviewScreen extends StatefulWidget {
+  const ProductsOverviewScreen({super.key});
+
   @override
   State<ProductsOverviewScreen> createState() => _ProductsOverviewScreenState();
 }
@@ -23,7 +25,6 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   @override
   void initState() {
     isInit = true;
-    // TODO: implement initState
     super.initState();
     // Future.delayed(Duration.zero).then((_) {
     //   Provider.of<Products>(context, listen: false).fetchAndSetProducts();
