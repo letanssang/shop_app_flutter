@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:logger/logger.dart';
 import 'product.dart';
 
 class Products with ChangeNotifier {
@@ -42,7 +43,9 @@ class Products with ChangeNotifier {
   ];
 
   //var _showFavoritesOnly = false;
-
+  final String? authToken;
+  final String? userId;
+  Products(this.authToken, this.userId, this._items);
   List<Product> get items {
     // if(_showFavoritesOnly) {
     //   return _items.where((element) => element.isFavorite).toList();
@@ -58,21 +61,28 @@ class Products with ChangeNotifier {
     return _items.firstWhere((element) => element.id == id);
   }
 
-  Future<void> fetchAndSetProducts() async {
-    final url = Uri.parse(
-        'https://shop-app-flutter-46e4b-default-rtdb.asia-southeast1.firebasedatabase.app/products.json');
+  Future<void> fetchAndSetProducts([bool filterbyUser = false]) async {
+    final filterString =
+        filterbyUser ? 'orderBy="creatorId"&equalTo="$userId"' : '';
+    var url = Uri.parse(
+        'https://shop-app-flutter-46e4b-default-rtdb.asia-southeast1.firebasedatabase.app/products.json?auth=$authToken&$filterString');
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      url = Uri.parse(
+          'https://shop-app-flutter-46e4b-default-rtdb.asia-southeast1.firebasedatabase.app/userFavorites/$userId.json?auth=$authToken');
+      final favoriteResponse = await http.get(url);
+      final favoriteData =
+          json.decode(favoriteResponse.body) as Map<String, dynamic>;
       final List<Product> loadedProducts = [];
-      extractedData.forEach((productId, productData) {
+      extractedData.forEach((prodId, prodData) {
         loadedProducts.add(Product(
-          id: productId,
-          title: productData['title'],
-          description: productData['description'],
-          price: productData['price'],
-          imageUrl: productData['imageUrl'],
-          isFavorite: productData['isFavorite'],
+          id: prodId,
+          title: prodData['title'],
+          description: prodData['description'],
+          price: prodData['price'],
+          isFavorite: favoriteData[prodId]?['isFavorite'] ?? false,
+          imageUrl: prodData['imageUrl'],
         ));
       });
       _items = loadedProducts;
@@ -84,7 +94,7 @@ class Products with ChangeNotifier {
 
   Future<void> addProduct(Product product) async {
     final url = Uri.parse(
-        'https://shop-app-flutter-46e4b-default-rtdb.asia-southeast1.firebasedatabase.app/products.json');
+        'https://shop-app-flutter-46e4b-default-rtdb.asia-southeast1.firebasedatabase.app/products.json?auth=$authToken');
     try {
       final response = await http.post(url,
           body: json.encode({
@@ -93,6 +103,7 @@ class Products with ChangeNotifier {
             'imageUrl': product.imageUrl,
             'price': product.price,
             'isFavorite': product.isFavorite,
+            'creatorId': userId,
           }));
       final newProduct = Product(
         title: product.title,
@@ -112,7 +123,7 @@ class Products with ChangeNotifier {
     final productIndex = _items.indexWhere((element) => element.id == id);
     if (productIndex >= 0) {
       final url = Uri.parse(
-          'https://shop-app-flutter-46e4b-default-rtdb.asia-southeast1.firebasedatabase.app/products/$id.json');
+          'https://shop-app-flutter-46e4b-default-rtdb.asia-southeast1.firebasedatabase.app/products/$id.json?auth=$authToken');
       http.patch(url,
           body: json.encode({
             'title': newProduct.title,
@@ -127,7 +138,7 @@ class Products with ChangeNotifier {
 
   Future<void> deleteProduct(String id) async {
     final url = Uri.parse(
-        'https://shop-app-flutter-46e4b-default-rtdb.asia-southeast1.firebasedatabase.app/products/$id.json');
+        'https://shop-app-flutter-46e4b-default-rtdb.asia-southeast1.firebasedatabase.app/products/$id.json?auth=$authToken');
     final existingProductIndex =
         _items.indexWhere((element) => element.id == id);
     var existingProduct = _items[existingProductIndex];
